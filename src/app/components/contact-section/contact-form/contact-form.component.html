@@ -1,44 +1,52 @@
-<div class="form-container rounded-3 shadow-lg p-3 h-100">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="h-100">
-    <div class="mb-4">
-      <input type="email" class="form-control bg-transparent border-primary text-light"
-             id="email-input" placeholder="Correo" aria-describedby="emailHelp"
-             formControlName="email"
-             [class.is-invalid]="form.controls['email'].invalid
-             && (form.controls['email'].touched || form.controls['email'].dirty)">
+<form *ngIf="contactForm" [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="d-flex flex-column gap-3">
+  <div class="form-group">
+    <label for="name">Full Name</label>
+    <input
+      type="text"
+      id="name"
+      formControlName="name"
+      class="form-control"
+      placeholder="Enter your name"
+      [ngClass]="{ 'is-invalid': contactForm.get('name')?.touched && contactForm.get('name')?.invalid }"
+    />
+  </div>
 
-      <div class="invalid-feedback" *ngIf="form.controls['email'].invalid
-             && (form.controls['email'].touched || form.controls['email'].dirty)">
-        <span *ngIf="form.controls['email'].hasError('required')">Este campo es requerido.</span>
-        <span *ngIf="form.controls['email'].hasError('email')">Debe ingresar una dirección de email válida.</span>
-      </div>
-    </div>
-    <div class="mb-4">
-      <input type="text" class="form-control bg-transparent border-primary text-light"
-             placeholder="Asunto" id="subject-input"
-             formControlName="subject"
-             [class.is-invalid]="form.controls['subject'].invalid
-             && (form.controls['subject'].touched || form.controls['subject'].dirty)">
+  <div class="form-group">
+    <label for="email">Email Address</label>
+    <input
+      type="email"
+      id="email"
+      formControlName="email"
+      class="form-control"
+      placeholder="example@email.com"
+      [ngClass]="{ 'is-invalid': contactForm.get('email')?.touched && contactForm.get('email')?.invalid }"
+    />
+  </div>
 
-      <div class="invalid-feedback" *ngIf="form.controls['subject'].invalid
-             && (form.controls['subject'].touched || form.controls['subject'].dirty)">
-        <span *ngIf="form.controls['subject'].hasError('required')">Este campo es requerido.</span>
-      </div>
-    </div>
-    <div class="mb-3">
-      <textarea class="form-control bg-transparent border-primary text-light" id="message"
-                rows="10" placeholder="Mensaje"
-                formControlName="message"
-                [class.is-invalid]="form.controls['message'].invalid
-                && (form.controls['message'].touched || form.controls['message'].dirty)"></textarea>
+  <div class="form-group">
+    <label for="subject">Subject</label>
+    <input
+      type="text"
+      id="subject"
+      formControlName="subject"
+      class="form-control"
+      placeholder="What is this about?"
+    />
+  </div>
 
-      <div class="invalid-feedback" *ngIf="form.controls['message'].invalid
-             && (form.controls['message'].touched || form.controls['message'].dirty)">
-        <span *ngIf="form.controls['message'].hasError('required')">Este campo es requerido.</span>
-      </div>
-    </div>
-    <div class="d-flex justify-content-end">
-      <button type="submit" class="btn btn-outline-primary text-light">Enviar</button>
-    </div>
-  </form>
-</div>
+  <div class="form-group">
+    <label for="message">Message</label>
+    <textarea
+      id="message"
+      formControlName="message"
+      class="form-control"
+      rows="5"
+      placeholder="Write your message here..."
+      [ngClass]="{ 'is-invalid': contactForm.get('message')?.touched && contactForm.get('message')?.invalid }"
+    ></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary mt-3" [disabled]="contactForm.invalid">
+    Send Message
+  </button>
+</form>

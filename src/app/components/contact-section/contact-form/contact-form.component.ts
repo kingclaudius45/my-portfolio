@@ -1,58 +1,35 @@
-import {Component, OnDestroy} from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from "@angular/forms";
-import {EmailService} from "../../../services/email.service";
-import {EmailData} from "../../../models/EmailData";
-import {Subscription, takeUntil} from "rxjs";
-import {ToastService} from "../../../services/toast.service";
-import { NgIf } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'; // Added ReactiveFormsModule
+import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-contact-form',
-    templateUrl: './contact-form.component.html',
-    styleUrls: ['./contact-form.component.css'],
-    standalone: true,
-    imports: [ReactiveFormsModule, NgIf]
+  selector: 'app-contact-form',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule], // Ensure ReactiveFormsModule is here
+  templateUrl: './contact-form.component.html',
+  styleUrls: ['./contact-form.component.css']
 })
-export class ContactFormComponent implements OnDestroy {
-  form: FormGroup = this.fb.group({});
-  private subs: Subscription = new Subscription();
-  constructor(private fb: FormBuilder, private emailService: EmailService, private toastService: ToastService) {
-    this.form = this.fb.group({
-      email: [{ value: "", disabled: false}, [Validators.required, Validators.email]],
-      subject: [{ value: "", disabled: false}, [Validators.required]],
-      message: [{ value: "", disabled: false}, [Validators.required]]
-    })
+export class ContactFormComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  contactForm!: FormGroup; // Use ! to tell TS it will be initialized
+
+  ngOnInit() {
+    this.contactForm = this.fb.group({
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      subject: [''],
+      message: ['', Validators.required]
+    });
   }
 
   onSubmit() {
-    if(this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
+    if (this.contactForm.valid) {
+      const { name, email, subject, message } = this.contactForm.value;
+      const emailBody = `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`;
+      const mailtoLink = `mailto:kanishkverma9@gmail.com?subject=${encodeURIComponent(subject || 'Contact from Portfolio')}&body=${encodeURIComponent(emailBody)}`;
+
+      window.location.href = mailtoLink;
+      this.contactForm.reset();
     }
-
-    let newEmail = new EmailData();
-    newEmail.sender = this.form.controls['email'].value;
-    newEmail.subject = this.form.controls['subject'].value;
-    newEmail.text = this.form.controls['message'].value;
-
-    this.toastService.show("El mensaje se esta enviando, esto puede tardar unos segundos",
-      "bg-info text-light");
-
-    this.subs.add(this.emailService.sendEmail(newEmail).subscribe(
-      {
-        next: value => {
-          this.toastService.show("Mensaje enviado con éxito!", "bg-success text-light");
-          this.form.reset();
-        },
-        error: err => { this.toastService.show("Hubo un error al intentar enviar el mensaje.",
-          "bg-danger text-light") }
-      }
-    ));
-
-
-  }
-
-  ngOnDestroy(): void {
-    this.subs.unsubscribe();
   }
 }
